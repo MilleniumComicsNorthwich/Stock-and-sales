@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Millennium Comics</title>
+<style>
+:root{color-scheme:dark;--bg:#000;--card:#0f0f0f;--ink:#fff;--mute:#a3a3a3;--line:#2b2b2b;--brand:#e63946;--ok:#3ecf8e;--warn:#f5a524;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+header{padding:18px 16px;border-bottom:3px solid var(--brand);background:#000}
+header h1{margin:0;font:800 1.7rem/1.1 Impact,"Arial Black",system-ui,sans-serif;letter-spacing:.08em;text-transform:uppercase}
+header p{margin:4px 0 0;color:var(--mute);font-size:.85rem}
+main{max-width:1000px;margin:0 auto;padding:16px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:16px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px}
+.stat b{display:block;font-size:1.35rem}.stat span{color:var(--mute);font-size:.8rem}
+.tabs{display:flex;gap:6px;margin-bottom:12px}
+.tabs button{flex:1;padding:10px;border:2px solid var(--ink);background:transparent;color:var(--ink);font-weight:700;border-radius:8px;cursor:pointer}
+.tabs button.on{background:var(--ink);color:var(--bg)}
+.scan,.bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.scan{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px}
+input,select{padding:9px 10px;border:1px solid var(--line);border-radius:8px;background:#000;color:var(--ink);font:inherit;min-width:0}
+.scan input{flex:1;min-width:180px;font-size:1.05rem;border-color:var(--brand)}
+.bar input[type=search]{flex:1;min-width:150px}
+.p{background:var(--brand);color:#fff;border:0;padding:9px 14px;border-radius:8px;font-weight:700;cursor:pointer;font:inherit;font-weight:700}
+.s{background:transparent;color:var(--ink);border:1px solid var(--line);padding:6px 10px;border-radius:6px;cursor:pointer;font:inherit;font-size:.85rem}
+.sell{background:var(--ok);color:#000;border:0;padding:6px 12px;border-radius:6px;font-weight:700;cursor:pointer}
+button:disabled{opacity:.35;cursor:not-allowed}
+#msg{min-height:1.4em;margin:0 0 10px;font-weight:600}
+#msg.ok{color:var(--ok)}#msg.err{color:var(--brand)}#msg.warn{color:var(--warn)}
+.wrap{overflow-x:auto;background:var(--card);border:1px solid var(--line);border-radius:10px}
+table{width:100%;border-collapse:collapse;min-width:680px}
+th,td{text-align:left;padding:10px;border-bottom:1px solid var(--line);white-space:nowrap}
+th{font-size:.75rem;text-transform:uppercase;color:var(--mute);letter-spacing:.05em}
+tr:last-child td{border-bottom:0}
+small{display:block;color:var(--mute);font-size:.75rem}
+.qty{font-weight:700}.low{color:var(--warn)}.out{color:var(--brand)}
+.acts{display:flex;gap:6px}
+form{display:none;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px;margin-bottom:12px}
+form.open{display:grid}form .p{align-self:end}
+.empty{padding:24px;text-align:center;color:var(--mute)}
+#camwrap{position:fixed;inset:0;background:#000e;z-index:9;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:calc(16px + env(safe-area-inset-top,0px)) 16px calc(16px + env(safe-area-inset-bottom,0px))}
+#camwrap[hidden]{display:none}
+#reader{width:min(480px,100%);border-radius:10px;overflow:hidden}
+
+main{padding:12px 12px 40px}
+input,select,.p,.s,.sell{font-size:16px;min-height:44px}
+.stats{grid-template-columns:repeat(2,1fr);gap:8px}
+.stat b{font-size:1.2rem}
+.scan{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;flex-direction:column;gap:8px}
+.scan input{width:100%;flex:none}
+.seg{display:flex;gap:6px}
+.seg button{flex:1;min-height:44px;border:2px solid var(--line);background:transparent;color:var(--ink);border-radius:8px;font:inherit;font-weight:700}
+.seg button.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+#cam{width:100%;min-height:52px;font-size:1.05rem}
+.bar .p,.bar .s{flex:1}
+form{grid-template-columns:1fr 1fr}
+form input[name=title],form input[name=pub],form .p{grid-column:1/-1}
+.list{display:flex;flex-direction:column;gap:10px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px}
+.card .top{display:flex;justify-content:space-between;gap:10px}
+.card .top b{font-size:1.05rem;word-break:break-word}
+.card .price{font-weight:800;font-size:1.1rem}
+.card .row{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:10px;flex-wrap:wrap}
+.card .acts{flex-wrap:wrap}
+.card .sell{min-width:84px}
+.sale{display:flex;justify-content:space-between;gap:10px}
+#cmsg{margin:0;min-height:1.4em;font-weight:700;text-align:center;font-size:1.1rem}
+#camwrap{gap:10px}
+</style>
+</head>
+<body>
+<header><h1>Millennium Comics</h1><p>Back office · stock &amp; sales</p></header>
+<main>
+<div class="stats" id="stats"></div>
+<div class="tabs"><button id="t1" class="on">Stock</button><button id="t2">Sales log</button><button id="t3">Backup</button></div>
+
+<section id="stock">
+<div class="scan">
+<div class="seg"><button id="m1" class="on">Sell</button><button id="m2">Receive stock</button></div>
+<input id="bc" inputmode="numeric" autocomplete="off" placeholder="Or type / scan a barcode, then Enter">
+<button class="p" id="cam">📷 Scan with camera</button>
+</div>
+<p id="msg"></p>
+<div class="bar">
+<input id="q" type="search" placeholder="Search title, publisher, issue, barcode…">
+<button class="p" id="add">+ Add comic</button>
+<button class="s" id="imp">Import file</button>
+<input id="file" type="file" accept=".csv,.xlsx,.xls" hidden>
+</div>
+<form id="f">
+<input name="bc" inputmode="numeric" placeholder="Barcode">
+<input name="title" placeholder="Title" required>
+<input name="issue" placeholder="Issue #">
+<input name="pub" placeholder="Publisher">
+<select name="cond"><option>New</option><option>Near Mint</option><option>Very Fine</option><option>Fine</option><option>Good</option></select>
+<input name="price" type="number" step="0.01" min="0" placeholder="Price £" required>
+<input name="qty" type="number" min="0" placeholder="Qty" required>
+<button class="p" type="submit">Save</button>
+</form>
+<div class="list" id="rows"></div>
+</section>
+
+<section id="sales" hidden>
+<div class="bar"><button class="s" id="clr">Clear sales log</button></div>
+<div class="list" id="log"></div>
+</section>
+<section id="backup" hidden>
+<div class="card"><b>Back up your stock</b><small>Saves all stock and sales to one CSV file. Keep it somewhere safe, such as your email or cloud storage.</small><p id="bk" style="margin:10px 0"></p><button class="p" id="bkb" style="width:100%">Download backup (CSV)</button></div>
+<div class="card" style="margin-top:10px"><b>Restore from a backup</b><small>Choose a backup file made by this page. This replaces everything currently in the app.</small><button class="s" id="rsb" style="width:100%;margin-top:10px">Choose backup file</button><input id="rsf" type="file" accept=".csv,text/csv" hidden></div>
+<p id="bkmsg" style="font-weight:600"></p>
+</section>
+</main>
+
+<div id="camwrap" hidden><p id="cmsg"></p><div id="reader"></div><button class="p" id="camx">Close camera</button></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script>
+const KEY="millennium-v2";
+const seed=[
+{id:1,bc:"761000000011",title:"Starfall Chronicles",issue:"#1",pub:"Nova Press",cond:"New",price:3.99,qty:12},
+{id:2,bc:"761000000028",title:"Starfall Chronicles",issue:"#2",pub:"Nova Press",cond:"New",price:3.99,qty:3},
+{id:3,bc:"761000000035",title:"The Midnight Courier",issue:"#14",pub:"Ink & Iron",cond:"Near Mint",price:6.5,qty:2},
+{id:4,bc:"761000000042",title:"Captain Copperbeard",issue:"#7",pub:"Salty Dog Comics",cond:"Very Fine",price:12,qty:1},
+{id:5,bc:"761000000059",title:"Robo Ramblers",issue:"Vol. 1 TPB",pub:"Gearbox Books",cond:"New",price:14.99,qty:0}];
+let S={items:seed,sales:[],next:6},editId=null;
+try{const r=localStorage.getItem(KEY);if(r)S=JSON.parse(r)}catch(e){}
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
+const $=id=>document.getElementById(id);
+const gbp=n=>"£"+Number(n).toFixed(2);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const label=i=>`${i.title} ${i.issue}`.trim();
+const digits=s=>String(s||"").replace(/\D/g,"");
+let mode="sell";
+function msg(t,c){const m=$("msg");m.textContent=t;m.className=c||"";const k=$("cmsg");k.textContent=t;k.style.color=c==="ok"?"var(--ok)":c==="warn"?"var(--warn)":"var(--brand)";if(navigator.vibrate)navigator.vibrate(c==="ok"?50:[80,60,80])}
+function setMode(m){mode=m;$("m1").classList.toggle("on",m==="sell");$("m2").classList.toggle("on",m==="recv");msg(m==="sell"?"Sell mode – each scan sells one copy":"Receive mode – each scan adds one copy","warn")}
+
+function render(){
+ const q=$("q").value.toLowerCase();
+ const units=S.items.reduce((a,i)=>a+i.qty,0),val=S.items.reduce((a,i)=>a+i.qty*i.price,0),rev=S.sales.reduce((a,s)=>a+s.price,0),low=S.items.filter(i=>i.qty<=2).length;
+ $("stats").innerHTML=[[S.items.length,"Titles"],[units,"Units in stock"],[gbp(val),"Stock value"],[gbp(rev),"Total sales"],[low,"Low / out of stock"]].map(([a,b])=>`<div class="stat"><b>${a}</b><span>${b}</span></div>`).join("");
+ const list=S.items.filter(i=>(i.title+i.issue+i.pub+i.bc).toLowerCase().includes(q));
+ $("rows").innerHTML=list.length?list.map(i=>`<div class="card"><div class="top"><div><b>${esc(label(i))}</b><small>${esc([i.pub,i.cond,i.bc].filter(Boolean).join(" · "))}</small></div><div class="price">${gbp(i.price)}</div></div>
+ <div class="row"><span class="qty ${i.qty===0?"out":i.qty<=2?"low":""}">${i.qty===0?"Out of stock":i.qty+" in stock"+(i.qty<=2?" · low":"")}</span>
+ <div class="acts"><button class="sell" data-a="sell" data-id="${i.id}" ${i.qty?"":"disabled"}>Sell</button><button class="s" data-a="re" data-id="${i.id}">+ Stock</button><button class="s" data-a="ed" data-id="${i.id}">Edit</button><button class="s" data-a="del" data-id="${i.id}">✕</button></div></div></div>`).join("")
+ :`<div class="empty">No comics found.</div>`;
+ $("log").innerHTML=S.sales.length?[...S.sales].reverse().map(x=>`<div class="card sale"><div><b>${esc(x.name)}</b><small>${new Date(x.t).toLocaleString("en-GB")}</small></div><b>${gbp(x.price)}</b></div>`).join(""):`<div class="empty">No sales yet.</div>`;
+}
+function openForm(o){const f=$("f");f.reset();editId=o.id||null;for(const k of["bc","title","issue","pub","cond","price","qty"])if(o[k]!==undefined)f.elements[k].value=o[k];f.classList.add("open");f.elements.title.focus()}
+function sellItem(it){it.qty--;S.sales.push({t:Date.now(),name:label(it),price:it.price})}
+
+$("rows").addEventListener("click",e=>{
+ const b=e.target.closest("button");if(!b)return;
+ const it=S.items.find(i=>i.id==b.dataset.id);if(!it)return;const a=b.dataset.a;
+ if(a==="sell"&&it.qty>0)sellItem(it);
+ else if(a==="re"){const n=parseInt(prompt("How many copies to add?","5"),10);if(n>0)it.qty+=n}
+ else if(a==="del"){if(confirm("Remove this comic from stock?"))S.items=S.items.filter(i=>i!==it)}
+ else if(a==="ed"){openForm(it);return}
+ save();render();
+});
+$("add").onclick=()=>{$("f").classList.contains("open")?$("f").classList.remove("open"):openForm({})};
+$("f").onsubmit=e=>{
+ e.preventDefault();const d=Object.fromEntries(new FormData(e.target));
+ d.price=parseFloat(d.price)||0;d.qty=parseInt(d.qty,10)||0;d.bc=digits(d.bc);
+ if(editId)Object.assign(S.items.find(i=>i.id===editId),d);else S.items.unshift({id:S.next++,...d});
+ editId=null;e.target.reset();e.target.classList.remove("open");save();render();focusScan();
+};
+$("q").oninput=render;
+$("clr").onclick=()=>{if(confirm("Clear the whole sales log?")){S.sales=[];save();render()}};
+function tab(n){$("stock").hidden=n!==1;$("sales").hidden=n!==2;$("backup").hidden=n!==3;[1,2,3].forEach(k=>$("t"+k).classList.toggle("on",n===k))}
+$("t1").onclick=()=>tab(1);$("t2").onclick=()=>tab(2);$("t3").onclick=()=>tab(3);
+
+/* ---- barcode scanning ---- */
+const focusScan=()=>{if(matchMedia("(pointer:fine)").matches)$("bc").focus()};
+function find(raw){const c=digits(raw);if(!c)return null;return S.items.find(i=>i.bc===c)||S.items.find(i=>i.bc&&c.startsWith(i.bc))||null}
+let last="",lt=0;
+function handle(raw,cam){
+ const now=Date.now();if(cam&&raw===last&&now-lt<2500)return;last=raw;lt=now;
+ const it=find(raw);
+ if(mode==="sell"){
+  if(!it)return msg(`Barcode ${raw} is not in the stock list`,"err");
+  if(!it.qty)return msg(`${label(it)} is out of stock`,"err");
+  sellItem(it);msg(`Sold ${label(it)} · ${gbp(it.price)} · ${it.qty} left`,"ok");
+ }else if(it){it.qty++;msg(`Received ${label(it)} · now ${it.qty} in stock`,"ok")}
+ else{closeCam();openForm({bc:digits(raw),qty:1});msg("New barcode – fill in the details and save","warn");return}
+ save();render();
+}
+$("bc").onkeydown=e=>{if(e.key==="Enter"){e.preventDefault();const v=$("bc").value.trim();$("bc").value="";if(v)handle(v,false)}};
+let scanner=null;
+async function closeCam(){$("camwrap").hidden=true;if(scanner){try{await scanner.stop();scanner.clear()}catch(e){}scanner=null}}
+$("m1").onclick=()=>setMode("sell");$("m2").onclick=()=>setMode("recv");
+$("cam").onclick=async()=>{
+ if(typeof Html5Qrcode==="undefined")return msg("Camera scanner could not load","err");
+ $("cmsg").textContent="";$("camwrap").hidden=false;scanner=new Html5Qrcode("reader");const F=Html5QrcodeSupportedFormats;
+ try{await scanner.start({facingMode:"environment"},{fps:10,qrbox:{width:250,height:120},formatsToSupport:[F.EAN_13,F.UPC_A,F.UPC_E,F.EAN_8,F.CODE_128]},t=>handle(t,true),()=>{})}
+ catch(e){await closeCam();msg("Camera unavailable – check permissions, or use a handheld scanner","err")}
+};
+$("camx").onclick=closeCam;
+
+/* ---- distributor file import (CSV / Excel) ---- */
+const N={bc:["barcode","upc","ean","isbn","upccode","itemcode"],title:["title","name","description","itemdescription","product"],issue:["issue","issueno","number","no"],pub:["publisher","vendor","brand"],price:["price","srp","retail","retailprice","msrp","cover","coverprice"],qty:["qty","quantity","ordered","shipped","units","copies"]};
+const pick=(r,k)=>{for(const h in r)if(N[k].includes(h.toLowerCase().replace(/[^a-z0-9]/g,"")))return String(r[h]).trim();return""};
+$("imp").onclick=()=>$("file").click();
+$("file").onchange=async e=>{
+ const f=e.target.files[0];e.target.value="";if(!f)return;
+ if(typeof XLSX==="undefined")return msg("File reader could not load","err");
+ try{
+  const wb=XLSX.read(await f.arrayBuffer(),{type:"array"});
+  const rows=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{defval:"",raw:false});
+  if(rows[0]&&Object.keys(rows[0]).some(k=>k.toLowerCase()==="sold_at"))return msg("That looks like a backup file – use Restore on the Backup tab","warn");
+  const recs=rows.map(r=>({bc:digits(pick(r,"bc")),title:pick(r,"title"),issue:pick(r,"issue"),pub:pick(r,"pub"),price:parseFloat(pick(r,"price").replace(/[^0-9.]/g,""))||0,qty:parseInt(pick(r,"qty"),10)||1})).filter(r=>r.title||r.bc);
+  if(!recs.length)return msg("No usable rows found – need a header row with columns like Barcode, Title, Qty, Price","err");
+  const match=r=>S.items.find(i=>(r.bc&&i.bc===r.bc)||(!r.bc&&i.title===r.title&&i.issue===r.issue));
+  const nNew=recs.filter(r=>!match(r)).length;
+  if(!confirm(`Import ${recs.length} rows from ${f.name}?\n${recs.length-nNew} restock existing comics, ${nNew} are new.`))return;
+  recs.forEach(r=>{const m=match(r);if(m)m.qty+=r.qty;else S.items.push({id:S.next++,cond:"New",...r})});
+  save();render();msg(`Imported ${recs.length} rows (${nNew} new)`,"ok");
+ }catch(err){msg("Could not read that file","err")}
+};
+
+/* ---- backup & restore (CSV) ---- */
+const HD=["type","barcode","title","issue","publisher","condition","price","qty","sold_at"];
+const cell=v=>{v=String(v==null?"":v);return /[",\n\r]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v};
+function toCsv(){
+ const L=[HD.join(",")];
+ S.items.forEach(i=>L.push(["stock",i.bc,i.title,i.issue,i.pub,i.cond,i.price,i.qty,""].map(cell).join(",")));
+ S.sales.forEach(x=>L.push(["sale","",x.name,"","","",x.price,"",new Date(x.t).toISOString()].map(cell).join(",")));
+ return "\uFEFF"+L.join("\r\n");
+}
+function parseCsv(t){
+ t=t.replace(/^\uFEFF/,"");const rows=[];let r=[],c="",q=false;
+ for(let k=0;k<t.length;k++){const ch=t[k];
+  if(q){if(ch==='"'){if(t[k+1]==='"'){c+='"';k++}else q=false}else c+=ch}
+  else if(ch==='"')q=true;
+  else if(ch===","){r.push(c);c=""}
+  else if(ch==="\n"||ch==="\r"){if(ch==="\r"&&t[k+1]==="\n")k++;r.push(c);c="";if(r.some(x=>x!==""))rows.push(r);r=[]}
+  else c+=ch}
+ r.push(c);if(r.some(x=>x!==""))rows.push(r);return rows;
+}
+function bmsg(t,c){const m=$("bkmsg");m.textContent=t;m.style.color=c==="ok"?"var(--ok)":"var(--brand)"}
+function bkStatus(){$("bk").textContent=S.bk?"Last backup: "+new Date(S.bk).toLocaleString("en-GB"):"No backup made yet – make one now."}
+$("bkb").onclick=async()=>{
+ let d=null;try{d=window.claude?await claude.use("downloads"):null}catch(e){}
+ const name="millennium-comics-backup-"+new Date().toISOString().slice(0,10)+".csv";
+ try{
+  if(d)await d.save({filename:name,data:toCsv()});
+  else{const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([toCsv()],{type:"text/csv"}));a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),4000)}
+  S.bk=Date.now();save();bkStatus();bmsg("Backup saved – check your Downloads","ok");
+ }catch(e){bmsg(e&&e.code==="declined"?"Backup cancelled":"Could not save the backup","err")}
+};
+$("rsb").onclick=()=>$("rsf").click();
+$("rsf").onchange=async e=>{
+ const f=e.target.files[0];e.target.value="";if(!f)return;
+ try{
+  const rows=parseCsv(await f.text());const h=(rows.shift()||[]).map(x=>x.trim().toLowerCase());
+  if(h.indexOf("type")<0||h.indexOf("sold_at")<0)return bmsg("That isn't a backup file made by this page","err");
+  const g=(r,n)=>(r[h.indexOf(n)]||"").trim();
+  const items=[],sales=[];let id=1;
+  rows.forEach(r=>{const t=g(r,"type");
+   if(t==="stock")items.push({id:id++,bc:digits(g(r,"barcode")),title:g(r,"title"),issue:g(r,"issue"),pub:g(r,"publisher"),cond:g(r,"condition")||"New",price:parseFloat(g(r,"price"))||0,qty:parseInt(g(r,"qty"),10)||0});
+   else if(t==="sale")sales.push({t:Date.parse(g(r,"sold_at"))||Date.now(),name:g(r,"title"),price:parseFloat(g(r,"price"))||0});
+  });
+  if(!items.length&&!sales.length)return bmsg("No stock or sales found in that file","err");
+  if(!confirm(`Restore ${items.length} comics and ${sales.length} sales from ${f.name}?\nThis replaces everything currently in the app.`))return;
+  S.items=items;S.sales=sales;S.next=id;save();render();bmsg(`Restored ${items.length} comics and ${sales.length} sales`,"ok");
+ }catch(err){bmsg("Could not read that file","err")}
+};
+render();bkStatus();focusScan();
+</script>
+</body>
+</html>
